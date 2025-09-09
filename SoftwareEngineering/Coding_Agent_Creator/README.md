@@ -65,6 +65,25 @@ After creation, try:
 - Access to your project directory
 - 5 minutes for initial setup
 
+## Updating Existing Agents
+
+When `agent_creator.md` is improved, update your existing agents:
+
+**In-place update** (recommended):
+```bash
+cd /path/to/your/project/with/existing/agent
+```
+```
+Read this updated prompt [path-to]/agent_creator.md and update my existing [AgentName] agent with the new improvements
+```
+
+**Cross-context update** (for minor changes):
+```
+Read [path-to]/agent_creator.md and /path/to/project/.AgentName/ directory. Update the agent with improvements while preserving customizations.
+```
+
+Replace `[path-to]` with your actual path to the agent creator prompt.
+
 ---
 
 *Your AI Tech Lead will analyze your project, learn your patterns, and become your intelligent development partner.*

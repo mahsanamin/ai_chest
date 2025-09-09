@@ -1,0 +1,25 @@
+# User-Specific Settings (Always Protected)
+.claude/settings.local.json
+**/settings.local.json
+*.local.json
+
+# IDE and Editor Settings
+.vscode/settings.json
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/shelf/
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*.temp
+*~

@@ -59,16 +59,19 @@ This will prevent repeated interruptions during setup. Ready to begin?"
 
 ## EXECUTION STEPS
 
-### Step 1: Parse Agent Name and Create Status Tracker
+### Step 1: Parse Agent Name and Detect Existing Agent
 
-Extract the agent name from my request (e.g., "Create agent named Aalajoo"). Use this name throughout as [AGENT_NAME].
+Extract the agent name from my request (e.g., "Create agent named Aalajoo" or "update my existing ProjectMaster agent"). Use this name throughout as [AGENT_NAME].
 
-**IMPORTANT**: Also identify the path to the agent creator prompt being used. This should be provided by the user or detectable from context.
+**IMPORTANT**: Check if this is an update request:
+- Look for words like "update", "upgrade", "improve" in the user request
+- Check if `.[AGENT_NAME]/` directory already exists
+- If updating existing agent, preserve all learned content (Donts.md, OngoingLearning.md, customizations)
 
 **Create setup progress tracker:**
 ```bash
 echo "Step 1: Agent name parsed - [AGENT_NAME]" > [AGENT_NAME]-creator-status.md
-echo "Step 1: Prompt path identified - [ACTUAL_PROMPT_PATH]" >> [AGENT_NAME]-creator-status.md
+echo "Mode: [CREATE_NEW | UPDATE_EXISTING]" >> [AGENT_NAME]-creator-status.md
 echo "Status: In Progress" >> [AGENT_NAME]-creator-status.md
 ```
 
@@ -95,6 +98,11 @@ echo "Step 2: Project status determined - [Production/Bootstrap]" >> [AGENT_NAME
 - Select "Yes, and don't ask again" (option 2) for directory/file creation commands
 - Select "Yes, allow all edits during this session" (shift+tab) for file editing
 - This prevents repeated interruptions during agent setup
+
+**IMPORTANT**: If UPDATE_EXISTING mode, preserve existing learned content:
+- Backup existing `Donts.md`, `OngoingLearning.md` and any user customizations
+- Only update template structure and analysis, never overwrite learned knowledge
+- Merge improvements while preserving all accumulated wisdom
 
 Create ALL files immediately with template content:
 
@@ -129,6 +137,9 @@ Load context from .[AGENT_NAME]/ directory for project guidance.
 Always read .[AGENT_NAME]/Donts.md before making changes.
 Follow patterns in .[AGENT_NAME]/HowToCode.md for coding conventions.
 EOF
+
+# Create .claude directory for Claude Code hooks
+mkdir -p .claude
 
 # Create simple feedback file
 cat > "AgentCreatorFeedbackLoop/feedback.md" << 'EOF'
@@ -286,10 +297,12 @@ For every task, I create structured documentation in `.tasks-[AGENT_NAME]/`:
 | [OngoingLearning.md](OngoingLearning.md) | New learnings | 📝 During Proejct there are lot of things learnt, if already covered in donts then don't add here, otherwise add |
 
 ## 🧠 Learning Log
-### Session #1 - [current date/time]
-- Initialized [AGENT_NAME] system
-- Project mode: [Production/Bootstrap] (user specified)
-- Starting project analysis...
+*Real learnings from mistakes, guidance, and decisions - not task progress*
+
+### Key Learnings
+- *No learnings yet - this will grow as I work on the project*
+- *Examples: "Don't use X pattern because it causes Y", "Always validate Z before doing W"*
+- *Learning format: [Date]: [What I learned] - [Why it matters]*
 
 ## 💡 Task Management Approach\
 [Based on Step 2 response]
@@ -416,11 +429,7 @@ Now perform deep technical analysis and populate:
 ## Tech Stack
 | Layer | Technology | Version | Why |
 |-------|-----------|---------|-----|
-| Frontend | [detect from package.json] | [version] | [infer from code] |
-| Backend | [detect from files] | [version] | [infer from structure] |
-| Database | [from config] | [version] | [from schema/models] |
-| Testing | [from test files] | [version] | [test approach] |
-| Build | [from scripts] | [version] | [deployment method] |
+*Populate this table by analyzing the actual technology stack used in this project. Look in package.json, dependency files, configuration files, and source code to identify the real technologies, versions, and implementation approaches.*
 
 ## Project Structure Type
 [Monolith / Microservices / Modular Monolith / Multi-Module / Monorepo]
@@ -438,48 +447,21 @@ Now perform deep technical analysis and populate:
 - **Shared Resources**: [Databases, caches, file systems]
 - **Module Boundaries**: [How separation is enforced]
 
-**Architecture Diagram (use Mermaid for complex systems):**
-```mermaid
-graph TD
-    A[Module A] -->|REST API| B[Module B]
-    B -->|Events| C[Module C]
-    A -->|Shared DB| D[Database]
-    C -->|Shared DB| D
-```
-
-*Only add Mermaid diagrams for complex multi-module systems*
+**Architecture Diagrams:**
+*Only create Mermaid diagrams when the system architecture is genuinely complex and would benefit from visualization. Use actual module names, services, and communication patterns discovered in this project. Focus on documenting what actually exists rather than creating generic templates.*
 
 ## Directory Structure
-**Use simple format to avoid character encoding issues:**
-```
-[project-root]/
-  [main-directory-1]/          # Description
-    [subdirectory]/            # What it contains
-    [subdirectory]/            # Purpose
-  [main-directory-2]/          # Description
-    [subdirectory]/            # What it contains
-  [config-files]              # Purpose
-```
-
-**Alternative clean format:**
-```
-[project-root]/
-  [main directories with descriptions]/
-    [subdirectory] - [what it contains]  
-    [subdirectory] - [purpose]
-  [configuration files and their purposes]
-```
+**Analyze the actual project structure and document what you find:**
+- Map the real directory layout of this specific project
+- Explain the purpose of each major directory based on the files it contains
+- Note any unusual or interesting organizational patterns
+- Focus on helping developers understand THIS project's organization
 
 ## Key Design Patterns
 [Analyze code for patterns]
 
-### [Pattern Name found in code]
-- **Where**: [files using this pattern]
-- **Purpose**: [why it's used]
-- **Example**:
-\`\`\`[language]
-[actual code example from project]
-\`\`\`
+### Pattern Discovery Instructions
+*Analyze the codebase to identify recurring design patterns actually in use. Document only patterns you find with their real locations, purposes, and genuine code examples from the project. Avoid documenting common patterns unless they have project-specific implementations or constraints.*
 
 ## Data Flow
 ### Request Lifecycle
@@ -487,18 +469,8 @@ graph TD
 2. [Processing] → [Data transformation]
 3. [Storage/Response]
 
-**Data Flow Diagram (for complex flows):**
-```mermaid
-flowchart LR
-    A[Entry Point] --> B[Processing Layer]
-    B --> C[Business Logic]
-    C --> D[Data Storage]
-    D --> C
-    C --> B
-    B --> E[Output]
-```
-
-*Only add for complex or non-obvious data flows*
+**Data Flow Diagrams:**
+*Create flowcharts only when data processing is genuinely complex or non-obvious. Use actual component names, real processing steps, and authentic data transformation points discovered in this project's codebase.*
 
 ### Data Persistence Flow
 [How data moves from UI to database and back]
@@ -511,9 +483,7 @@ flowchart LR
 [How APIs are versioned: URL, header, etc.]
 
 ### Endpoints by Module/Domain
-#### [Module/Domain Name]
-- `[METHOD] /path` - [purpose]
-- `[METHOD] /path/:param` - [purpose]
+*Document the actual API endpoints found in this project, organized by their functional domains. Include the real HTTP methods, paths, and purposes discovered from the codebase.*
 
 ## Database Architecture
 ### Schema Design
@@ -521,30 +491,13 @@ flowchart LR
 
 ### Tables/Collections by Module
 [If multi-module, how data is separated]
-- **[Module]**: [tables/collections it owns]
+*Document the actual data ownership patterns found in this project, using real module and table/collection names from the codebase.*
 
 ### Data Relationships
 [Key foreign keys, references, joins between modules]
 
-**Database Schema Diagram (for complex schemas):**
-```mermaid
-erDiagram
-    User ||--o{ Order : places
-    Order ||--|{ OrderItem : contains
-    Product ||--o{ OrderItem : "ordered in"
-    User {
-        int id
-        string name
-        string email
-    }
-    Order {
-        int id
-        int user_id
-        date created_at
-    }
-```
-
-*Only add for systems with complex table relationships*
+**Database Schema Diagrams:**
+*Create entity relationship diagrams only when the database schema is genuinely complex with multiple related entities. Use actual table names, field names, and relationships discovered from the project's database migrations, models, or schema files. Avoid creating diagrams for simple schemas with few relationships.*
 
 ## Security Architecture
 - **Authentication**: [method found, where implemented]
@@ -582,19 +535,7 @@ erDiagram
 
 ## Real Code Patterns & Examples
 
-### [Pattern Name 1] - [Where It's Used]
-**Purpose**: [Why this pattern exists]
-**Location**: [Actual file paths]
-**Example**:
-```[language]
-[Real code snippet from the project]
-```
-Key Points:
-- [Important detail 1]
-- [Important detail 2]
-
-### [Pattern Name 2] - [Where It's Used]
-[Continue for major patterns found - add actual patterns discovered during analysis]
+*Analyze the codebase to identify real patterns in use. Document only significant patterns you actually find, using their authentic names, real locations, and genuine code examples. Focus on patterns that are important for maintaining consistency or understanding the codebase architecture.*
 
 ## Common Issues & Debugging
 
@@ -644,7 +585,7 @@ Analyze build/run configurations and populate:
 [From package.json, Dockerfile, etc.]
 
 ## Environment Setup
-[From .env.example and configs]
+*Extract environment setup requirements from .env.example, configuration files, and documentation found in the project.*
 
 ## Running Development Mode
 [From package.json scripts]
@@ -696,14 +637,7 @@ Create with template for future learning:
 
 #### Codebase Analysis for Coding Conventions
 
-1. **Find Source Code Files**: Use glob patterns to identify main source files:
-   ```bash
-   # Examples for different languages
-   **/*.java     # Java projects
-   **/*.ts       # TypeScript projects  
-   **/*.py       # Python projects
-   **/*.go       # Go projects
-   ```
+1. **Find Source Code Files**: Use glob patterns to identify the main source files in this specific project. Determine the primary programming language(s) and file extensions used by examining the actual codebase structure.
 
 2. **Analyze Key Files**: Read representative files from different functional areas:
    - Entry point files (main application patterns)
@@ -738,53 +672,30 @@ Create with template for future learning:
 
 ## Coding Conventions
 
-### Naming Conventions
-[Extract actual naming patterns from the codebase]
-- **Classes**: [Real examples from code]
-- **Methods**: [Real examples from code] 
-- **Variables**: [Real examples from code]
+*Analyze the actual codebase to extract the real coding conventions in use. Look for consistent patterns across multiple files and document only the conventions that are actually followed in this project.*
 
-### File Organization  
-[Document actual package/directory structure]
-- **Package Structure**: [Real structure from codebase]
-- **Directory Layout**: [Actual directory organization]
+### Pattern Discovery Approach
+**Naming Conventions**: Examine class names, method names, and variable names across the codebase to identify consistent naming patterns.
 
-### [Framework] Patterns (if applicable)
-[Framework-specific patterns found in code]
-- **Annotations**: [Real annotation usage]
-- **Configuration**: [Real config patterns]
+**File Organization**: Map the actual directory structure and package organization used in this project.
 
-### Error Handling Patterns
-[Real error handling from codebase]
-- **Exception Types**: [Actual exceptions used]
-- **Error Messages**: [Real error message patterns]
+**Framework Usage**: Identify framework-specific patterns, annotations, and configuration approaches actually used.
 
-### Request/Response Patterns (if applicable)
-[Real API patterns if it's a web application]
-- **Request Objects**: [Actual request structures]
-- **Response Formatting**: [Real response patterns]
+**Error Handling**: Look for consistent error handling approaches, exception types, and error message patterns.
 
-### Data Access Patterns (if applicable)
-[Real database/data access patterns]
-- **Repository Patterns**: [Actual repository implementations]
-- **Query Patterns**: [Real query approaches]
+**API Patterns**: If this is a web application, document the actual request/response structures and API conventions found in the code.
 
-### Import Organization
-[Real import organization from codebase]
-- **Import Order**: [Actual import organization]
-- **Grouping**: [Real grouping patterns]
+**Data Access**: Identify actual repository patterns, database query approaches, and data access conventions.
 
-### Code Style Standards
-[Extract from consistent patterns in code]
-- **Indentation**: [Actual indentation used]
-- **Line Length**: [Real line breaking patterns]
-- **Documentation**: [Real documentation patterns]
+**Import Organization**: Document the real import ordering and grouping patterns used consistently across files.
+
+**Code Style**: Extract indentation, formatting, and documentation patterns from the actual codebase.
 
 ---
 *Updated from codebase analysis - reflects actual patterns in use*
 ```
 
-**Important**: Replace all "[Real examples from code]" with actual examples from the codebase analysis. Do not leave placeholder text.
+**Critical**: Populate all sections with actual patterns and examples discovered from analyzing this project's codebase. Do not leave any placeholder text or generic examples. Document only what you actually find in the code.
 
 **PR Learning Instructions:**
 
@@ -852,11 +763,14 @@ Create separate file for new learnings:
 *Keep entries simple and actionable. Move critical items to main agent files if needed.*
 ```
 
-### Step 10: Setup Claude Code Hooks (if applicable)
+### Step 10: Setup Claude Code Hooks
 
-**If `.claude/` directory exists or was created in Step 3**, create/update `.claude/settings.json` with agent continuity hooks:
+**CRITICAL**: Always create the hooks file for automatic agent loading and continuous learning.
 
-```json
+**IMPORTANT**: Write to `settings.json` (shared/committed) NOT `settings.local.json` (user-specific/git-ignored):
+
+```bash
+cat > ".claude/settings.json" << 'EOF'
 {
   "hooks": {
     "session-start": {
@@ -897,6 +811,7 @@ Create separate file for new learnings:
     "buildCommand": "[detected-build-command]"
   }
 }
+EOF
 ```
 
 **Hook Benefits:**
@@ -906,6 +821,8 @@ Create separate file for new learnings:
 - **Continuous learning**: Automatic context loading from previous mistakes
 
 ### Step 11: Update .gitignore
+
+**CRITICAL**: Always ensure user-specific settings files are protected from being committed.
 
 Add entries:
 
@@ -923,9 +840,11 @@ Add entries:
 AgentCreatorFeedbackLoop/
 
 ##############################
-## Claude Code Personal Settings (if applicable)
+## User-Specific Settings (Always Protected)
 ##############################
 .claude/settings.local.json
+**/settings.local.json
+*.local.json
 ```
 
 ### Step 12: Progressive Updates to Main Agent File
@@ -960,16 +879,12 @@ As analysis completes, update [AGENT_NAME].md:
 - **Modules**: [count if multi-module]
 
 ## 🧠 Learning Log
-### Session #1 - [current date/time]
-- Initialized [AGENT_NAME] system
-- Project mode: [Production/Bootstrap] (user specified)
-- ✅ Analyzed project structure
-- ✅ Documented architecture
-- ✅ Extracted run instructions
-- Key findings:
-  - [Major finding 1]
-  - [Major finding 2]
-  - [Major finding 3]
+*Real learnings from mistakes, guidance, and decisions - not task progress*
+
+### Key Learnings
+- *No learnings yet - this will grow as I work on the project*
+- *Examples: "Don't use X pattern because it causes Y", "Always validate Z before doing W"*
+- *Learning format: [Date]: [What I learned] - [Why it matters]*
 ```
 
 ## TASK WORKFLOW (POST-CREATION)
@@ -1084,6 +999,7 @@ Periodically verify accuracy and suggest refreshes:
 14. **Temp cleanup**: Use temp/ directories for testing, clean up after completion
 15. **Avoid similar files**: Check for existing documentation before creating new files
 16. **Use Mermaid sparingly**: Only add diagrams for complex systems where visual clarity helps
+17. **Always protect user settings**: Ensure `settings.local.json` and similar user-specific files are in .gitignore
 
 ## EXECUTION REQUIREMENTS
 
