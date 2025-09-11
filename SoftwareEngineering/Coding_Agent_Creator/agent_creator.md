@@ -895,15 +895,16 @@ When tasks are assigned:
 
 1. Ask: "Should I create a new branch for this task? What should we name it?"
 2. **Generate Task Code**: Extract from branch name or create short identifier
-3. Create `.tasks-[AGENT_NAME]/[branch-name]/` directory (convert slashes to dashes)
-4. **RequirementUnderstanding Phase**: Create `[TASK_CODE]_RequirementUnderstanding.md`
-5. Analyze user's requirement with Ultra Thinking Mode - ask clarifying questions
-6. Wait for user validation: "Is my understanding correct?"
-7. **Code Duplication Check**: Search existing codebase for similar implementations before planning
-8. Create `[TASK_CODE]_TaskContext.md` (technical context) and `[TASK_CODE]_ExecutionPlan.md` (numbered steps)
-9. Create `[TASK_CODE]_.task-progress.md` inside the branch directory to track current step/subtask
-10. Update `.current-task` with branch name
-11. Begin execution with progress tracking
+3. **FIRST create task-specific directory**: Create `.tasks-[AGENT_NAME]/[TASK_CODE]-TaskName/` directory (convert slashes to dashes)
+4. **THEN create files inside the directory**: All task files must go inside the task-specific subdirectory
+5. **RequirementUnderstanding Phase**: Create `[TASK_CODE]_RequirementUnderstanding.md` INSIDE the task directory
+6. Analyze user's requirement with Ultra Thinking Mode - ask clarifying questions
+7. Wait for user validation: "Is my understanding correct?"
+8. **Code Duplication Check**: Search existing codebase for similar implementations before planning
+9. Create `[TASK_CODE]_TaskContext.md` (technical context) and `[TASK_CODE]_ExecutionPlan.md` (numbered steps) INSIDE task directory
+10. Create `[TASK_CODE]_.task-progress.md` INSIDE the task directory to track current step/subtask
+11. Update `.current-task` with task directory name
+12. **Begin execution with MANDATORY continuous progress updates**: Update task-progress.md inside .tasks-[AGENT_NAME]/[TASK_CODE]-TaskName/ as work progresses, NOT just at the end
 
 **Branch Naming & Task Code Generation:**
 - Git branch: `parent/branch-name` → Directory: `.tasks-[AGENT_NAME]/parent-branch-name/`
@@ -1091,33 +1092,34 @@ Focus on **how the system is built** before **what it does**.
 ```markdown
 # Execution Plan: [TASK_CODE] - [Task Name]
 
-## Step-by-Step Plan
+## Step-by-Step Implementation Plan
 
-### step-1: [Step Name]
-- **Action**: [What to do]
-- **Files**: [Files to modify/create]
-- **Status**: ❌ Not Started / 🔄 In Progress / ✅ Complete
+### 1. [Step Name]
+**Action**: [What to do]
+**Files**: [Files to modify/create]
+**Notes**: [Any important considerations]
 
-### step-2: [Step Name]  
-- **Action**: [What to do]
-- **Files**: [Files to modify/create]
-- **Status**: ❌ Not Started / 🔄 In Progress / ✅ Complete
+### 2. [Step Name]  
+**Action**: [What to do]
+**Files**: [Files to modify/create]
+**Notes**: [Any important considerations]
 
-### step-3: [Step Name]
-- **Action**: [What to do]
-- **Files**: [Files to modify/create]  
-- **Status**: ❌ Not Started / 🔄 In Progress / ✅ Complete
+### 3. [Step Name]
+**Action**: [What to do]
+**Files**: [Files to modify/create]
+**Notes**: [Any important considerations]
 
-### step-final: Test & Validate
-- **Action**: Run integration tests to ensure no breaking changes
-- **Files**: Run existing test commands from HowToRunProject.md
-- **Status**: ❌ Not Started / 🔄 In Progress / ✅ Complete
+### 4. Test & Validate
+**Action**: Run integration tests to ensure no breaking changes
+**Files**: Run existing test commands from HowToRunProject.md
+**Notes**: Verify all functionality works before completion
 
-## Progress Tracking
-- Current Step: [step-N]
-- Overall Progress: [X/Y steps complete]
-- Blockers: [Any blockers encountered]
-- Last Test Run: [✅ Passed / ❌ Failed / ⏳ Pending]
+## Implementation Notes
+- **Dependencies**: [What needs to be done first]
+- **Risk Factors**: [Potential issues to watch for]
+- **Testing Strategy**: [How to validate each step]
+
+*This is a static plan - see task-progress.md for live progress tracking*
 ```
 
 ### [TASK_CODE]_.task-progress.md Template
