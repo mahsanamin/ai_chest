@@ -1,6 +1,6 @@
 ---
-name: github-commit
-description: Create a clean, human-readable git commit. Say "commit" or "github commit" when you're ready to commit your changes.
+name: task-flow-commit
+description: Create a clean, human-readable git commit. Say "task-flow-commit" or "commit" when you're ready to commit your changes.
 disable-model-invocation: true
 ---
 

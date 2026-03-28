@@ -1,6 +1,6 @@
 ---
-name: github-pr
-description: Create a pull request using the project's PR template. Say "pr" or "github pr" when ready to open a pull request.
+name: task-flow-pr
+description: Create a pull request using the project's PR template. Say "task-flow-pr" or "pr" when ready to open a pull request.
 disable-model-invocation: true
 ---
 

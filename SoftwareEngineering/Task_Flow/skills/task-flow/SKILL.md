@@ -1012,9 +1012,9 @@ If no ticket exists, ask user to create one before commit.
 | "start coding" / "approved" (after plan) | ⚠️ Check branch first! Then checkout branch, begin implementation |
 | "update plan" | Refresh execution_plan.md with changes |
 | "done" / "finished" / "continue" | Create ticket.md + pr-description.md, then commit |
-| "commit" / "verify and commit" | 🚨 CHECK BRANCH FIRST! Run safety checks before committing |
+| "task-flow-commit" / "commit" | 🚨 CHECK BRANCH FIRST! Run safety checks before committing |
 | "create ticket" | Generate ticket.md |
-| "create PR" | Generate pr-description.md |
+| "task-flow-pr" / "create PR" | Generate pr-description.md |
 | "archive task" | Move task folder to DoneTasks |
 | **"task-flow-remember"** or **"remember"** | Quick context recovery when Claude forgets |
 
