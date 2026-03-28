@@ -15,9 +15,15 @@ AI_PROMPTS/
 │       └── easy_understanding.md    # Simplify complex topics
 │
 └── SoftwareEngineering/
-    └── Coding_Agent_Creator/
-        ├── agent_creator.md         # Create intelligent coding assistants
-        └── README.md               # Agent creator documentation
+    ├── Coding_Agent_Creator/
+    │   ├── agent_creator.md         # Create intelligent coding assistants
+    │   └── README.md               # Agent creator documentation
+    │
+    └── Task_Flow/
+        ├── skills/                  # 7 workflow skills for Claude Code
+        ├── agents/                  # 6 background agents (review, test, docs)
+        ├── templates/               # Commit and PR templates
+        └── README.md               # Full documentation
 ```
 
 ## 🧠 Available Prompts
@@ -52,6 +58,24 @@ AI_PROMPTS/
 
 **Use Case**: When you want an AI assistant that truly understands your specific project and can provide contextual guidance.
 
+#### Task Flow (`SoftwareEngineering/Task_Flow/`)
+**Purpose**: Complete structured development workflow for Claude Code — from raw task to merged PR
+- 5-phase workflow: Understand → Plan → Code → Document → PR
+- Session recovery across Claude sessions
+- Parallel background agents for testing, review, and documentation
+- Safety rails: never commits to main, never auto-pushes, never fabricates
+- Built-in task tracking for weekly reports
+- Jira integration via Atlassian MCP
+
+**Features**:
+- 🔄 **Full Lifecycle**: Raw prompt to merged PR in one structured flow
+- 🤖 **6 Background Agents**: Code reviewer, test runner, doc writer, commit writer, PR writer, plan verifier
+- 🛡️ **Safety First**: Branch protection, explicit approvals, fabrication prevention
+- 📋 **Task Tracking**: Weekly summaries and task history logging
+- 🔌 **Stack Agnostic**: Works with any language — Java, TypeScript, Python, Go, Rust
+
+**Use Case**: When you want a consistent, repeatable AI development workflow that enforces quality and tracks progress.
+
 ## 🚀 Quick Start
 
 ### Using the Easy Understanding Prompt
@@ -66,6 +90,12 @@ AI_PROMPTS/
 3. Tell your AI assistant: "Read this prompt and create me an agent named [YourAgentName]"
 4. Follow the setup process (takes ~5 minutes)
 5. Your AI will analyze your project and become a specialized coding assistant
+
+### Using Task Flow
+1. Copy the `SoftwareEngineering/Task_Flow/` directory into your project
+2. Follow the setup instructions in `Task_Flow/README.md`
+3. In Claude Code, say `task-flow` to start your first structured task
+4. See the [Task Flow README](SoftwareEngineering/Task_Flow/README.md) for full documentation
 
 ## 🎯 Who This Is For
 
