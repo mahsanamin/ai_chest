@@ -1,6 +1,6 @@
 ---
 name: pr-writer
-description: Generates a PR title and filled PR body from the project's template. Called by task-flow or github-pr skill. Does NOT execute git/gh commands.
+description: Generates a PR title and filled PR body from the project's template. Called by task-flow or task-flow-pr skill. Does NOT execute git/gh commands.
 tools: Read, Bash, Grep
 model: haiku
 ---

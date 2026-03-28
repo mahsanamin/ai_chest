@@ -1,6 +1,6 @@
 ---
-name: review-pr
-description: Review pull requests against project coding rules. Accepts PR numbers/URLs. Say "review-pr" or "review pr".
+name: task-flow-review-pr
+description: Review pull requests against project coding rules. Accepts PR numbers/URLs. Say "task-flow-review-pr" or "review pr".
 disable-model-invocation: true
 ---
 
@@ -13,15 +13,15 @@ Standalone code review skill. Reviews any PR against project coding rules. Gener
 - Review a teammate's PR before approving
 - Review your own PR before requesting review
 - Review multiple related PRs together
-- Quick review by number: `review-pr 216`
+- Quick review by number: `task-flow-review-pr 216`
 
 ## How to Use
 
 ```
-> review-pr 216
-> review-pr https://github.com/{org}/{repo}/pull/216
-> review-pr 219 220 221
-> review-pr                    # Will ask for PR number
+> task-flow-review-pr 216
+> task-flow-review-pr https://github.com/{org}/{repo}/pull/216
+> task-flow-review-pr 219 220 221
+> task-flow-review-pr                    # Will ask for PR number
 ```
 
 ## Working Directory

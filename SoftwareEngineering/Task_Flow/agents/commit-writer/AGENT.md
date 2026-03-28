@@ -1,6 +1,6 @@
 ---
 name: commit-writer
-description: Generates clean, human-readable commit messages from context and git diff. Called by task-flow or github-commit skill. Does NOT execute git commands.
+description: Generates clean, human-readable commit messages from context and git diff. Called by task-flow or task-flow-commit skill. Does NOT execute git commands.
 tools: Read, Bash, Grep
 model: haiku
 ---
