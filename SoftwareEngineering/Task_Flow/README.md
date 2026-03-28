@@ -29,7 +29,7 @@ Task_Flow/
 │   ├── task-flow-remember/             # Quick context recovery mid-session
 │   ├── task-flow-fix-comments/         # Fix PR feedback (SonarQube, CodeRabbit, human)
 │   ├── task-flow-setup:init-skills/     # Directory structure + skill.config setup
-│   ├── task-flow-review-pr/             # Standalone PR review
+│   ├── task-flow-tool:review-pr/        # Standalone PR review (global tool)
 │   ├── task-flow-commit/               # Clean, human-readable commits
 │   └── task-flow-pr/                   # PR creation with templates
 │
@@ -171,7 +171,7 @@ Jira, GitHub Issues, Linear, Tiles, or no tracker — configure once, workflow a
 | `task-flow-fix-comments` | Target project | Fix PR feedback |
 | `task-flow-inspector` | Target project | Audit task health |
 | `task-flow-remember` | Target project | Quick context recovery |
-| `task-flow-review-pr` | Target project | Standalone PR review |
+| `task-flow-tool:review-pr` | Target project | Standalone PR review (posts to GitHub) |
 | `task-flow-commit` | Target project | Create a git commit |
 | `task-flow-pr` | Target project | Create a pull request |
 
