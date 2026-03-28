@@ -236,8 +236,8 @@ This applies to: URLs, endpoint paths, class names, method names, table names, c
 
 ## Prerequisites
 
-- `.claude/skill.config` must exist (run `bash path/to/Task_Flow/install.sh` if missing)
-- `.claude/config_hints.json` must exist with project configuration
+- `.claude/skill.config` must exist (run `task-flow-setup:init-skills` if missing)
+- `.claude/config_hints.json` must exist (run `task-flow-setup:initialize` from the framework repo if missing)
 - **Ticket-First Approach:** Tracker configured in `config_hints.json` (see Tracker Integration section)
 - **Ticket-Late Approach:** User creates task folder under `{tasks_folder}/` with `raw_prompt.md`
 
@@ -337,7 +337,7 @@ This applies to: URLs, endpoint paths, class names, method names, table names, c
    ```
    ⚠️ Missing required configuration.
 
-   Run the installer: bash path/to/Task_Flow/install.sh
+   Run "task-flow-setup:init-skills" to configure paths, or "task-flow-setup:initialize" from the framework repo for full setup.
    ```
 
 3. **Ask user to choose workflow approach:**

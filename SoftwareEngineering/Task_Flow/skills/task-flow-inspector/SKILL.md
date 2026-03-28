@@ -21,7 +21,7 @@ Scan → Check → Report → Fix → Push
 
 ```bash
 if [ ! -f ".claude/skill.config" ]; then
-  echo "❌ .claude/skill.config not found. Run 'bash path/to/Task_Flow/install.sh' first."
+  echo "❌ .claude/skill.config not found. Run 'task-flow-setup:init-skills' first."
   exit 1
 fi
 
