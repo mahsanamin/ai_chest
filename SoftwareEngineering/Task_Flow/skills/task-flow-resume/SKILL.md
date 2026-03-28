@@ -10,7 +10,7 @@ Resume an ongoing task by providing the task folder path.
 
 ## Prerequisites
 
-- `.claude/skill.config` must exist (run `bash path/to/Task_Flow/install.sh` if missing)
+- `.claude/skill.config` must exist (run `task-flow-setup:init-skills` if missing)
 
 ## Workflow
 
