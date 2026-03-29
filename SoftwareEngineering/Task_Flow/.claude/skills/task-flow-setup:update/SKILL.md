@@ -80,7 +80,8 @@ If target has no `config_hints.json` → tell user to run `initialize-project` i
 ### 1e. Categorize and Select Mode
 
 Categorize each changed file:
-- **skill_files** — `skills/` (maps to `.claude/skills/` in target)
+- **skill_files** — `skills/task-flow-*` without `tool:` prefix (maps to `{TARGET_PROJECT}/.claude/skills/`)
+- **global_tool_files** — `skills/task-flow-tool:*` (maps to `~/.claude/skills/` — user-level, shared across all projects)
 - **agent_files** — `agents/` (maps to `.claude/agents/` in target)
 - **rule_files** — `rules/` (maps to `{standards_dir}/` in target)
 - **template_files** — `templates/`
