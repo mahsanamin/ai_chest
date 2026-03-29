@@ -34,13 +34,19 @@ Auto-selects the fastest mode:
 
 ### 1a. Ask for Target Project
 
-Ask a single free-text question — **no menu, no options, no suggestions**:
+**CRITICAL: Use AskUserQuestion with ONLY a text field. Do NOT use selectable options, menus, numbered lists, or suggestions of any kind.**
+
+Ask exactly this — one plain text question, nothing else:
 
 ```
 What is the full path to your target project?
 ```
 
-**Do NOT present a list of choices.** Just ask for the path and wait for the user to type it. Validate the directory exists. Store as `TARGET_PROJECT`.
+- **NEVER** pass `options` or `choices` to AskUserQuestion — use it in plain text-input mode only
+- **NEVER** list directories, suggest paths, or show examples
+- Just ask and wait for the user to type the full path
+
+Validate the directory exists. Store as `TARGET_PROJECT`.
 
 ### 1b. Create Update Branch
 
