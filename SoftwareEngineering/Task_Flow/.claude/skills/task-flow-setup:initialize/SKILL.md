@@ -34,9 +34,13 @@ Install the Task Flow framework into a new project with intelligent stack detect
 
 ### 1a. Ask for Target Project
 
-Ask: **"What is the path to your project?"**
+Ask a single free-text question — **no menu, no options, no suggestions**:
 
-Wait for the user to type the actual path. Validate the directory exists. Store as `TARGET_PROJECT`.
+```
+What is the full path to your target project?
+```
+
+**Do NOT present a list of choices.** Just ask for the path and wait for the user to type it. Validate the directory exists. Store as `TARGET_PROJECT`.
 
 ```bash
 ls {TARGET_PROJECT}/.claude/config_hints.json 2>/dev/null

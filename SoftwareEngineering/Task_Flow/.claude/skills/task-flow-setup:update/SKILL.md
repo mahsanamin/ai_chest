@@ -34,9 +34,13 @@ Auto-selects the fastest mode:
 
 ### 1a. Ask for Target Project
 
-Ask: **"What is the path to your project?"**
+Ask a single free-text question — **no menu, no options, no suggestions**:
 
-Validate the directory exists. Store as `TARGET_PROJECT`.
+```
+What is the full path to your target project?
+```
+
+**Do NOT present a list of choices.** Just ask for the path and wait for the user to type it. Validate the directory exists. Store as `TARGET_PROJECT`.
 
 ### 1b. Create Update Branch
 
