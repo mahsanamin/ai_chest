@@ -164,10 +164,22 @@ Is this correct? (y/n)
 
 ## Phase 3b: Match Rule Templates
 
-**After stack detection, check if AIRuleTemplates exist in the framework repo.**
+**After stack detection, check if AIRuleTemplates exist as a sibling directory to Task_Flow.**
 
+AIRuleTemplates lives alongside Task_Flow in the repo, NOT inside it:
+```
+SoftwareEngineering/
+├── AIRuleTemplates/    ← rule templates
+├── Task_Flow/          ← this framework (FRAMEWORK_PATH)
+└── ...
+```
+
+Resolve the path:
 ```bash
-ls {FRAMEWORK_PATH}/../AIRuleTemplates/README.md 2>/dev/null
+# FRAMEWORK_PATH is the Task_Flow root. AIRuleTemplates is a sibling.
+REPO_ROOT=$(cd {FRAMEWORK_PATH}/.. && pwd)
+TEMPLATES_PATH="$REPO_ROOT/AIRuleTemplates"
+ls "$TEMPLATES_PATH/README.md" 2>/dev/null
 ```
 
 If found, intelligently select templates that match the detected stack:
@@ -226,9 +238,9 @@ Install these templates to {STANDARDS_DIR}/? (y/n/customize)
 Copy each selected template to `{TARGET_PROJECT}/{STANDARDS_DIR}/`:
 
 ```bash
-cp {FRAMEWORK_PATH}/../AIRuleTemplates/universal/*.md {TARGET_PROJECT}/{STANDARDS_DIR}/
-cp {FRAMEWORK_PATH}/../AIRuleTemplates/backend/*.md {TARGET_PROJECT}/{STANDARDS_DIR}/
-# ... etc based on selection
+cp "$TEMPLATES_PATH/universal/"*.md {TARGET_PROJECT}/{STANDARDS_DIR}/
+cp "$TEMPLATES_PATH/backend/"*.md {TARGET_PROJECT}/{STANDARDS_DIR}/
+# ... etc based on matched directories
 ```
 
 **If bootstrap rules from Phase 2 exist**, keep both — bootstrap rules contain project-specific patterns, templates contain general best practices. They complement each other.

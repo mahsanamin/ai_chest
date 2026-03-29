@@ -135,8 +135,17 @@ Cleanup temp files after verification passes.
 
 **After updating skills/agents/rules, check if AIRuleTemplates have new or updated content.**
 
+AIRuleTemplates lives alongside Task_Flow in the repo, NOT inside it:
+```
+SoftwareEngineering/
+├── AIRuleTemplates/    ← rule templates
+├── Task_Flow/          ← this framework (FRAMEWORK_PATH)
+```
+
 ```bash
-ls {FRAMEWORK_PATH}/../AIRuleTemplates/README.md 2>/dev/null
+REPO_ROOT=$(cd {FRAMEWORK_PATH}/.. && pwd)
+TEMPLATES_PATH="$REPO_ROOT/AIRuleTemplates"
+ls "$TEMPLATES_PATH/README.md" 2>/dev/null
 ```
 
 If AIRuleTemplates exist:
