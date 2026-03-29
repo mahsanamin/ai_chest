@@ -131,6 +131,53 @@ Parallel agents for large updates:
 
 Cleanup temp files after verification passes.
 
+## Phase 4b: Check for New/Updated Rule Templates
+
+**After updating skills/agents/rules, check if AIRuleTemplates have new or updated content.**
+
+```bash
+ls {FRAMEWORK_PATH}/../AIRuleTemplates/README.md 2>/dev/null
+```
+
+If AIRuleTemplates exist:
+
+1. **Read the target project's stack** from `config_hints.json` (platform, standards_location)
+2. **Detect stack** from build files (same signals as initialize)
+3. **Match template directories** using the same logic as initialize:
+   - `universal/` → always
+   - `backend/` → any backend project
+   - `java-spring-boot/` → Java + Spring
+   - `react-typescript/` → React + TS
+   - `nextjs/` → Next.js
+4. **For each matched template file**, compare against what's already in `{STANDARDS_DIR}/`:
+   - **Missing** → New template not yet installed
+   - **Differs** → Template was updated in framework
+   - **Same** → Already up to date, skip
+   - **Exists but not from template** (project-specific rule) → Never touch
+
+5. **If new or updated templates found**, present to user:
+
+```
+Rule template updates available:
+
+NEW:
+  + backend/api-conventions.md — REST API validation & security patterns
+
+UPDATED:
+  ~ backend/query-efficiency.md — Added DataContext pattern section
+  ~ universal/critical-thinking.md — Minor wording improvements
+
+Already up to date: 4 templates
+
+Install new and update changed templates? (y/n/customize)
+```
+
+- **y** → Install new, update changed (Smart Diff — preserve any project customizations)
+- **n** → Skip templates
+- **customize** → Pick individually
+
+**Smart Diff for template updates:** When updating an existing template, preserve any project-specific customizations the developer added (e.g., custom examples, domain-specific rules appended at the end). Only add new framework sections and fix framework bugs — never overwrite project additions.
+
 ## Phase 5: Finalize (All Modes)
 
 1. Update `framework_version` in `config_hints.json`
@@ -145,6 +192,11 @@ Mode: {inline/single-agent/full-pipeline}
 Files updated:
 - {file1} — {what changed}
 ...
+
+{If templates installed/updated:}
+Rule templates:
+- {N} new templates installed
+- {N} templates updated (project customizations preserved)
 
 Verification: PASS
 ```
