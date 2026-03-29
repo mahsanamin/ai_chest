@@ -81,7 +81,7 @@ If target has no `config_hints.json` → tell user to run `initialize-project` i
 
 Categorize each changed file:
 - **skill_files** — `skills/task-flow-*` without `tool:` prefix (maps to `{TARGET_PROJECT}/.claude/skills/`)
-- **global_tool_files** — `skills/task-flow-tool:*` (maps to `~/.claude/skills/` — user-level, shared across all projects)
+- **Skip** `skills/task-flow-tool:*` — global tools are managed separately via `task-flow-setup:install-global-tools`
 - **agent_files** — `agents/` (maps to `.claude/agents/` in target)
 - **rule_files** — `rules/` (maps to `{standards_dir}/` in target)
 - **template_files** — `templates/`
@@ -215,6 +215,13 @@ Rule templates:
 - {N} templates updated (project customizations preserved)
 
 Verification: PASS
+```
+
+### Remind About Global Tools
+
+```
+Note: Global tools (ai-optimizer, review-pr) are updated separately.
+Run: bash {FRAMEWORK_PATH}/install-global-tools.sh
 ```
 
 ### Optional: Run AI Sanitizer

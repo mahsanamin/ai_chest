@@ -6,7 +6,7 @@
 |-----------|---------|-----------|
 | `task-flow*` | Core workflow phases & actions | Target project |
 | `task-flow-setup:*` | Installation, configuration, updates | Framework repo or target project |
-| `task-flow-tool:*` | Standalone tools (not tied to workflow phases) | Target project |
+| `task-flow-tool:*` | Standalone tools (installed globally to `~/.claude/skills/`) | Any project |
 
 ## Skills Inventory
 
@@ -29,6 +29,7 @@
 |-------|-------------|---------|-----------|
 | `task-flow-setup:initialize` | Install Task Flow into a new project with stack detection, rule generation, and contamination checking | "task-flow-setup:initialize" | Framework repo |
 | `task-flow-setup:update` | Incremental update of existing installation. Auto-selects inline/single-agent/full-pipeline mode. | "task-flow-setup:update" | Framework repo |
+| `task-flow-setup:install-global-tools` | Install/update global tools (ai-optimizer, review-pr) to `~/.claude/skills/`. Independent of any target project. | "task-flow-setup:install-global-tools" | Framework repo |
 | `task-flow-setup:init-skills` | Create directory structure (OnGoingTasks, DoneTasks, TasksSummary, WeeklySummaries) and `.claude/skill.config` | "task-flow-setup:init-skills" | Target project |
 
 ### Standalone Tools
@@ -169,5 +170,6 @@ Phase 5: Archive → move to DoneTasks/
 |--------|---------|-------------|
 | Quick install | `bash install.sh` | Copy files, create config interactively |
 | Smart install | `task-flow-setup:initialize` | Stack detection, rule generation, contamination check |
+| Global tools | `bash install-global-tools.sh` | Install ai-optimizer, review-pr to `~/.claude/skills/` |
 | Update | `task-flow-setup:update` | Incremental update with smart diff |
 | Path setup | `task-flow-setup:init-skills` | Directory structure + skill.config |
