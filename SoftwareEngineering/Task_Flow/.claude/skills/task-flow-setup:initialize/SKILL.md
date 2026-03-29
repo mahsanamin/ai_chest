@@ -259,9 +259,8 @@ cp "$TEMPLATES_PATH/backend/"*.md {TARGET_PROJECT}/{STANDARDS_DIR}/
 
 Install in this order:
 
-1. **Skills**: Install skills based on scope:
-   - **Project skills** (`task-flow-*` without `tool:` prefix): Copy `{FRAMEWORK_PATH}/skills/task-flow-*/SKILL.md` → `{TARGET_PROJECT}/.claude/skills/`
-   - **Global tools** (`task-flow-tool:*` prefix): Copy `{FRAMEWORK_PATH}/skills/task-flow-tool:*/SKILL.md` → `~/.claude/skills/` (user-level, shared across all projects)
+1. **Skills**: Install **project skills only** (`task-flow-*` without `tool:` prefix): Copy `{FRAMEWORK_PATH}/skills/task-flow-*/SKILL.md` → `{TARGET_PROJECT}/.claude/skills/`
+   - **Skip** any `task-flow-tool:*` directories — global tools are installed separately via `task-flow-setup:install-global-tools`
    - Adapt platform-specific references using detected stack
 2. **Agents**: Copy `{FRAMEWORK_PATH}/agents/*/AGENT.md` → `{TARGET_PROJECT}/.claude/agents/`
 3. **Rules**: Rule templates were already installed in Phase 3b. Install any additional universal rules here.
@@ -327,10 +326,13 @@ What was set up:
 
 Next steps:
 
-1. Configure your local paths:
+1. Install global tools (ai-optimizer, review-pr):
+   bash {FRAMEWORK_PATH}/install-global-tools.sh
+
+2. Configure your local paths:
    > task-flow-setup:init-skills
 
-2. Start your first task:
+3. Start your first task:
    > task-flow
 ```
 

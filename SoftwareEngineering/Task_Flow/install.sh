@@ -15,24 +15,55 @@ if [ ! -d "$TARGET/.git" ]; then
   [[ "$confirm" =~ ^[Yy]$ ]] || exit 1
 fi
 
-# Step 1: Copy skills, agents, templates
-echo "Installing skills, agents, and templates..."
+# Step 1: Copy project skills (excluding global tools), agents, templates
+echo "Installing project skills, agents, and templates..."
 mkdir -p "$TARGET/.claude/skills" "$TARGET/.claude/agents" "$TARGET/docs/templates"
 
-# Use rsync for clean overwrites without nesting; fall back to cp
+# Copy only project-level skills (skip task-flow-tool:* global tools)
+for skill_dir in "$SCRIPT_DIR/skills/task-flow"*/; do
+  skill_name="$(basename "$skill_dir")"
+  # Skip global tools — they are installed separately
+  if [[ "$skill_name" == task-flow-tool:* ]]; then
+    continue
+  fi
+  if command -v rsync &>/dev/null; then
+    rsync -a "$skill_dir" "$TARGET/.claude/skills/$skill_name/"
+  else
+    mkdir -p "$TARGET/.claude/skills/$skill_name"
+    cp -R "$skill_dir." "$TARGET/.claude/skills/$skill_name/"
+  fi
+done
+
+# Copy agents and templates
 if command -v rsync &>/dev/null; then
-  rsync -a "$SCRIPT_DIR/skills/" "$TARGET/.claude/skills/"
   rsync -a "$SCRIPT_DIR/agents/" "$TARGET/.claude/agents/"
   rsync -a "$SCRIPT_DIR/templates/" "$TARGET/docs/templates/"
 else
-  cp -R "$SCRIPT_DIR/skills/." "$TARGET/.claude/skills/"
   cp -R "$SCRIPT_DIR/agents/." "$TARGET/.claude/agents/"
   cp -R "$SCRIPT_DIR/templates/." "$TARGET/docs/templates/"
 fi
 
-echo "  Copied skills:    $(find "$SCRIPT_DIR/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ') skills"
+project_skill_count=$(find "$SCRIPT_DIR/skills" -mindepth 1 -maxdepth 1 -type d -not -name 'task-flow-tool:*' | wc -l | tr -d ' ')
+global_tool_count=$(find "$SCRIPT_DIR/skills" -mindepth 1 -maxdepth 1 -type d -name 'task-flow-tool:*' | wc -l | tr -d ' ')
+echo "  Copied skills:    $project_skill_count project skills (skipped $global_tool_count global tools)"
 echo "  Copied agents:    $(find "$SCRIPT_DIR/agents" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ') agents"
 echo "  Copied templates: $(find "$SCRIPT_DIR/templates" -mindepth 1 -maxdepth 1 -type f | wc -l | tr -d ' ') templates"
+
+# Step 1b: Install global tools to ~/.claude/skills/
+echo ""
+echo "Installing global tools to ~/.claude/skills/..."
+mkdir -p "$HOME/.claude/skills"
+for tool_dir in "$SCRIPT_DIR/skills/task-flow-tool:"*/; do
+  [ -d "$tool_dir" ] || continue
+  tool_name="$(basename "$tool_dir")"
+  if command -v rsync &>/dev/null; then
+    rsync -a "$tool_dir" "$HOME/.claude/skills/$tool_name/"
+  else
+    mkdir -p "$HOME/.claude/skills/$tool_name"
+    cp -R "$tool_dir." "$HOME/.claude/skills/$tool_name/"
+  fi
+  echo "  Installed: $tool_name"
+done
 
 # Step 2: Create config_hints.json (interactive)
 CONFIG_FILE="$TARGET/.claude/config_hints.json"
@@ -120,10 +151,11 @@ done
 echo ""
 echo "=== Task Flow Installed ==="
 echo ""
-echo "  Skills:    $TARGET/.claude/skills/"
-echo "  Agents:    $TARGET/.claude/agents/"
-echo "  Templates: $TARGET/docs/templates/"
-echo "  Config:    $TARGET/.claude/config_hints.json"
-echo "  Paths:     $TARGET/.claude/skill.config"
+echo "  Project skills: $TARGET/.claude/skills/"
+echo "  Agents:         $TARGET/.claude/agents/"
+echo "  Templates:      $TARGET/docs/templates/"
+echo "  Config:         $TARGET/.claude/config_hints.json"
+echo "  Paths:          $TARGET/.claude/skill.config"
+echo "  Global tools:   ~/.claude/skills/ (ai-optimizer, review-pr)"
 echo ""
 echo "Run 'task-flow' in Claude Code to start."
