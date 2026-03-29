@@ -162,6 +162,79 @@ Detected your project stack:
 Is this correct? (y/n)
 ```
 
+## Phase 3b: Match Rule Templates
+
+**After stack detection, check if AIRuleTemplates exist in the framework repo.**
+
+```bash
+ls {FRAMEWORK_PATH}/../AIRuleTemplates/README.md 2>/dev/null
+```
+
+If found, intelligently select templates that match the detected stack:
+
+### Template Matching Logic
+
+**Always include:**
+- `AIRuleTemplates/universal/` → ALL projects get these (critical-thinking.md, code-review.md)
+
+**Match by detected stack:**
+
+| Detected Stack | Template Directories |
+|---------------|---------------------|
+| Any backend (Java, Python, Go, Node.js, etc.) | `universal/` + `backend/` |
+| Java + Spring Boot | `universal/` + `backend/` + `java-spring-boot/` |
+| React + TypeScript | `universal/` + `react-typescript/` |
+| Next.js | `universal/` + `react-typescript/` + `nextjs/` |
+| Python + Django/Flask | `universal/` + `backend/` |
+| Go | `universal/` + `backend/` |
+| Node.js + Express | `universal/` + `backend/` |
+
+**Detection signals:**
+
+| Signal | Indicates |
+|--------|-----------|
+| `build.gradle`, `pom.xml` with Spring dependencies | Java + Spring Boot |
+| `package.json` with `react` dependency | React + TypeScript |
+| `package.json` with `next` dependency | Next.js |
+| `pyproject.toml`, `requirements.txt` with Django/Flask | Python backend |
+| `go.mod` | Go backend |
+| Any backend language + SQL/ORM dependencies | Backend templates apply |
+
+### Present template selection to user
+
+```
+Based on your stack ({detected}), these rule templates match:
+
+✅ universal/critical-thinking.md — Challenge assumptions (always applied)
+✅ universal/code-review.md — Review criteria
+✅ backend/query-efficiency.md — N+1 prevention, batch loading
+✅ backend/transaction-boundaries.md — Keep transactions short
+✅ backend/database-migrations.md — Migration patterns
+✅ backend/api-conventions.md — REST API validation & security
+✅ java-spring-boot/jpa-repositories.md — JPA patterns
+✅ java-spring-boot/coding-conventions.md — Java/Spring conventions
+
+Install these templates to {STANDARDS_DIR}/? (y/n/customize)
+```
+
+- **y** → Install all matched templates
+- **n** → Skip templates entirely
+- **customize** → Let user pick which ones to include
+
+### Install matched templates
+
+Copy each selected template to `{TARGET_PROJECT}/{STANDARDS_DIR}/`:
+
+```bash
+cp {FRAMEWORK_PATH}/../AIRuleTemplates/universal/*.md {TARGET_PROJECT}/{STANDARDS_DIR}/
+cp {FRAMEWORK_PATH}/../AIRuleTemplates/backend/*.md {TARGET_PROJECT}/{STANDARDS_DIR}/
+# ... etc based on selection
+```
+
+**If bootstrap rules from Phase 2 exist**, keep both — bootstrap rules contain project-specific patterns, templates contain general best practices. They complement each other.
+
+**Track what was installed** — store the list of template files for the summary in Phase 6.
+
 ## Phase 4: Install
 
 ### 4a. Copy Framework Components
@@ -171,8 +244,8 @@ Install in this order:
 1. **Skills**: Copy `{FRAMEWORK_PATH}/skills/*/SKILL.md` → `{TARGET_PROJECT}/.claude/skills/`
    - Adapt platform-specific references using detected stack
 2. **Agents**: Copy `{FRAMEWORK_PATH}/agents/*/AGENT.md` → `{TARGET_PROJECT}/.claude/agents/`
-3. **Rules**: Install universal rules to `{STANDARDS_DIR}/`
-   - If bootstrap rules were generated, preserve them alongside framework rules
+3. **Rules**: Rule templates were already installed in Phase 3b. Install any additional universal rules here.
+   - If bootstrap rules were generated, preserve them alongside templates
 4. **Templates**: Copy PR and commit templates
    - Detect existing PR template first; merge if found
 5. **Settings**: Create `.claude/settings.json` with appropriate permissions
@@ -225,8 +298,8 @@ Task Flow installed for {PROJECT_NAME}!
 What was set up:
 - Skills: {count} skills installed
 - Agents: {count} agents installed
-- Rules: {count} framework rules
-  {if bootstrap: + {count} project-specific rules generated}
+- Rule templates: {count} from AIRuleTemplates ({list of directories matched})
+  {if bootstrap: + {count} project-specific rules generated from codebase analysis}
 - Config: .claude/config_hints.json
 - AGENTS.md: Single source of truth
 - CLAUDE.md: Points to @AGENTS.md
