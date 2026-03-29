@@ -7,7 +7,6 @@ Create a smart AI Tech Lead agent that learns your project and provides expert g
 1. **Clone this repository**
    ```bash
    git clone <repository-url>
-   cd my_docs/Prompts/CodePrompts
    ```
 
 2. **Open your project in Claude Code (or any AI chat)**
@@ -17,10 +16,10 @@ Create a smart AI Tech Lead agent that learns your project and provides expert g
 
 3. **Create your agent**
    ```
-   Read this prompt /Volumes/Work/Personal/repos/my_docs/Prompts/CodePrompts/agent_creator.md and create me an agent with name ProjectMaster
+   Read this prompt /path/to/ai_chest/SoftwareEngineering/Coding_Agent_Creator/agent_creator.md and create me an agent with name ProjectMaster
    ```
-   
-   Replace `ProjectMaster` with whatever name suits your project.
+
+   Replace `ProjectMaster` with whatever name suits your project, and update the path to where you cloned the repo.
 
 ## What You Get
 
