@@ -259,7 +259,9 @@ cp "$TEMPLATES_PATH/backend/"*.md {TARGET_PROJECT}/{STANDARDS_DIR}/
 
 Install in this order:
 
-1. **Skills**: Copy `{FRAMEWORK_PATH}/skills/*/SKILL.md` → `{TARGET_PROJECT}/.claude/skills/`
+1. **Skills**: Install skills based on scope:
+   - **Project skills** (`task-flow-*` without `tool:` prefix): Copy `{FRAMEWORK_PATH}/skills/task-flow-*/SKILL.md` → `{TARGET_PROJECT}/.claude/skills/`
+   - **Global tools** (`task-flow-tool:*` prefix): Copy `{FRAMEWORK_PATH}/skills/task-flow-tool:*/SKILL.md` → `~/.claude/skills/` (user-level, shared across all projects)
    - Adapt platform-specific references using detected stack
 2. **Agents**: Copy `{FRAMEWORK_PATH}/agents/*/AGENT.md` → `{TARGET_PROJECT}/.claude/agents/`
 3. **Rules**: Rule templates were already installed in Phase 3b. Install any additional universal rules here.
