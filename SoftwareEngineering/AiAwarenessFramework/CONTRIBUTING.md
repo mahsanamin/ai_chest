@@ -1,6 +1,6 @@
 # Contributing to the AI Awareness Framework
 
-This framework is consumed by other your repos via `aa-install` / `aa-upgrade`. That means every change here is shipped to all installed projects on their next upgrade — small, intentional commits matter more than usual.
+This framework is consumed by other repos via `aa-install` / `aa-upgrade`. That means every change here is shipped to all installed projects on their next upgrade — small, intentional commits matter more than usual.
 
 ## Where to make changes
 
