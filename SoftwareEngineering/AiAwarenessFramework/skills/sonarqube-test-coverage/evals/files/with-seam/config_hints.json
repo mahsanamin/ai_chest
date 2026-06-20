@@ -1,0 +1,12 @@
+{
+  "_comment": "Fixture: a backend project whose config_hints declares an explicit coverage seam. The skill must use coverage.command verbatim rather than guessing.",
+  "project": { "namespace": "EX", "name": "Example Service" },
+  "platform": "Backend",
+  "standards_location": "docs/ai-rules",
+  "test_command": "./gradlew test --rerun-tasks --no-daemon",
+  "coverage": {
+    "command": "./gradlew testCodeCoverageReport --rerun-tasks --no-daemon",
+    "report_glob": "build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml",
+    "report_format": "jacoco-xml"
+  }
+}

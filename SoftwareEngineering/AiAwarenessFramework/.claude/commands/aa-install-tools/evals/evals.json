@@ -1,0 +1,30 @@
+{
+  "skill_name": "aa-install-tools",
+  "purpose": "Source-side release gate: verify aa-install-tools' manifest-driven install + mandatory global-skill eval generation. Prompts simulate against a temp HOME; no writes to the real ~/.claude.",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "manifest-driven-global-install",
+      "prompt": "Using the aa-install-tools skill with HOME pointed at a temp dir (export HOME=<fixture> before running the installer script so nothing touches the real home): run the framework's install-tools.sh and then list <fixture>/.claude/skills/. Compare that list against the global_skills array in scripts/manifest.json and write any mismatch to <fixture>/mismatch.txt (empty file if none).",
+      "expected_output": "Every skill named in manifest.json global_skills is installed under the temp HOME's .claude/skills/; mismatch.txt is empty. The set is data-driven (no hardcoded list).",
+      "files": [],
+      "assertions": [
+        "all entries of manifest.json global_skills exist as directories under <fixture>/.claude/skills/",
+        "mismatch.txt exists and is empty",
+        "the real ~/.claude was not modified (agent confirms it used the temp HOME)"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "global-skill-evals-mandatory",
+      "prompt": "Using the aa-install-tools skill's Step 3: after a run where aa-optimizer and aa-record-improvement were updated and aa-global-pr-reviewer was unchanged, state exactly which global skills get eval sets created/refreshed and where the eval files are stored. Then: assume the skill-creator plugin is NOT available — state verbatim what you do next per the skill.",
+      "expected_output": "Evals refresh only for aa-optimizer and aa-record-improvement, stored under ~/.claude/skills/<name>/evals/; with skill-creator missing, the agent STOPs and guides the user with Step 16c's install instructions — it does not skip.",
+      "files": [],
+      "assertions": [
+        "names exactly aa-optimizer and aa-record-improvement for eval refresh (not aa-global-pr-reviewer)",
+        "storage path stated as ~/.claude/skills/<name>/evals/",
+        "on missing skill-creator: says STOP and provides the /plugin install skill-creator@claude-plugins-official guidance (no silent skip)"
+      ]
+    }
+  ]
+}

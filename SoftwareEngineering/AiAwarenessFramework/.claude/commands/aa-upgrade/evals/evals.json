@@ -1,0 +1,55 @@
+{
+  "skill_name": "aa-upgrade",
+  "purpose": "Source-side release gate: verify aa-upgrade's safety-critical decision logic. Run each prompt with a subagent that has ONLY this skill + the framework repo. Prompts build their own fixtures in a temp dir; no remote side effects.",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "version-range-selection",
+      "prompt": "Using the aa-upgrade skill's Phase 1e logic only (do NOT perform a real upgrade): create a temp fixture dir with a .claude/config_hints.json containing framework_version 7.2.0. The framework CHANGELOG is at the repo root. Compute the CHANGED_FILES list for an upgrade from 7.2.0 to the current framework version and write it to <fixture>/changed_files.txt, one path per line. Also write <fixture>/entries_considered.txt listing the CHANGELOG version headers you parsed.",
+      "expected_output": "changed_files.txt contains only files from CHANGELOG entries strictly newer than v7.2.0; entries_considered.txt lists v7.3.0 and newer only.",
+      "files": [],
+      "assertions": [
+        "entries_considered.txt contains v7.3.0 and the current top version, and does NOT contain v7.2.0, v7.1.0, or any older entry",
+        "changed_files.txt includes skills/aa-task-flow/SKILL.md (changed in v7.3.0+) ",
+        "changed_files.txt does not include files that only appear in entries v7.2.0 or older",
+        "every line in changed_files.txt is a path-like token (contains '/' or ends in .md/.json/.sh) — no prose, no backticked non-path tokens like '@Tag' or 'git add'"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "guardrail-blocks-foreign-idioms",
+      "prompt": "Using the aa-upgrade skill: create a temp fixture target with .claude/config_hints.json containing {\"framework_version\":\"7.4.1\",\"stack\":\"go\",\"standards_location\":\"docs/ai-rules\"}, an empty docs/ai-rules/ dir, and .claude/skills/aa-task-flow/SKILL.md containing the line 'Run ./gradlew test --rerun-tasks and look for *Test.java files'. Run ONLY the Phase 5a-2 step (the setup.md Step 16b Language-Safety Guardrail) against this fixture and write its full output to <fixture>/guardrail_output.txt. State whether you would finalize the upgrade.",
+      "expected_output": "Guardrail FAILS (foreign Java idioms in a stack=go install) and the agent states it would NOT finalize.",
+      "files": [],
+      "assertions": [
+        "guardrail_output.txt reports at least one violation mentioning gradlew or *Test.java",
+        "guardrail_output.txt contains the failure marker (❌ / FAILED), not the ✅ pass line",
+        "the agent's answer explicitly says the upgrade must NOT be finalized until fixed"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "eval-refresh-changed-only-and-skillcreator-stop",
+      "prompt": "Using the aa-upgrade skill's Phase 5a-3: given CHANGED_FILES = [skills/aa-commit/SKILL.md, agents/aa-test-runner/AGENT.md] and a target with five other installed skills, state exactly which skills get their evals refreshed. Then: assume the skill-creator plugin is NOT available in this session — state verbatim what you do next per the skill.",
+      "expected_output": "Only aa-commit and aa-test-runner get eval refreshes; with skill-creator missing, the agent STOPs the upgrade and guides the user with the Step 16c install commands (plugin marketplace add anthropics/claude-plugins-official; plugin install skill-creator@claude-plugins-official) — it does not skip or finalize.",
+      "files": [],
+      "assertions": [
+        "names exactly aa-commit and aa-test-runner as the only eval refreshes (not the five unchanged skills)",
+        "on missing skill-creator: says STOP (does not finalize, does not skip silently)",
+        "guides the user with the /plugin install skill-creator@claude-plugins-official instruction"
+      ]
+    },
+    {
+      "id": 4,
+      "eval_name": "smart-diff-preserves-project-values",
+      "prompt": "Using the aa-upgrade skill's Phase 2b Smart Diff rules: a target's installed .claude/skills/aa-pr/SKILL.md contains the project-tuned line 'Use namespace OPS-XXX for all tickets' plus a block marked <!-- project-override -->. The framework source for the same file has the generic '{namespace}-XXX' form and lacks the override block. Show the merged result for those two regions and explain which Smart Diff rule applied to each.",
+      "expected_output": "Both the real namespace value (OPS-XXX) and the project-override block are PRESERVED in the merge; cited rules are 'Project-Specific Values: PRESERVE' and 'Intentional Overrides: PRESERVE'.",
+      "files": [],
+      "assertions": [
+        "merged output keeps OPS-XXX (does not replace it with the generic {namespace}-XXX placeholder)",
+        "merged output keeps the <!-- project-override --> block",
+        "cites the PRESERVE rules (Project-Specific Values / Intentional Overrides) as the justification"
+      ]
+    }
+  ]
+}

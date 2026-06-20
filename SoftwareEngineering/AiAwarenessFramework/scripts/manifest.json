@@ -1,0 +1,62 @@
+{
+  "description": "Declares all framework scripts and global skills, plus their install targets. Read by install-tools.sh (and the aa-install-tools wrapper skill). Two top-level arrays: 'scripts' (shell-level helpers under ~/.claude/scripts/) and 'global_skills' (Claude Code skills under ~/.claude/skills/ available system-wide). Adding a new global skill is a manifest edit — no code change in install-tools.sh required.",
+  "namespace": "aa",
+  "scripts": [
+    {
+      "name": "aa-sonarqube/fetch-issues.sh",
+      "install": "global",
+      "target": "~/.claude/scripts/aa-sonarqube/",
+      "description": "Fetch SonarQube issues for the current project. Requires SONARQUBE_URL and SONARQUBE_TOKEN environment variables."
+    },
+    {
+      "name": "aa-worktree/worktree.sh",
+      "install": "sourced",
+      "target": "~/.claude/scripts/aa-worktree/",
+      "description": "Git worktree helpers (sourced into shell). Provides aa_g_worktree_init / _remove / _list / _switch / _conclude / _update / _main functions. The aa_ prefix differs from the upstream a_ prefix at github.com/mahsanamin/my_setup so the framework's copy can coexist with a developer's manual install without function-name collisions. Looks up its companion helpers via $AA_WORKTREE_DIR (defaults to ~/.claude/scripts/aa-worktree)."
+    },
+    {
+      "name": "aa-worktree/aa_g_worktree_init",
+      "install": "global",
+      "target": "~/.claude/scripts/aa-worktree/",
+      "description": "Companion helper sourced by worktree.sh's aa_g_worktree_init function. Creates a new worktree with auto-cd."
+    },
+    {
+      "name": "aa-worktree/aa_g_worktree_remove",
+      "install": "global",
+      "target": "~/.claude/scripts/aa-worktree/",
+      "description": "Companion helper executed by worktree.sh's aa_g_worktree_remove function. Removes a worktree with merge verification and protected-branch safeguards."
+    },
+    {
+      "name": "aa-worktree/aa_g_worktree_review",
+      "install": "global",
+      "target": "~/.claude/scripts/aa-worktree/",
+      "description": "Companion helper sourced by worktree.sh's aa_g_worktree_review function. Creates a review worktree from a GitHub PR or remote branch, with a 'review-' prefixed local branch."
+    },
+    {
+      "name": "aa-freshness/check.sh",
+      "install": "sourced",
+      "target": "~/.claude/scripts/aa-freshness/",
+      "description": "Framework freshness + discovery check. Sourced from shell-rc and auto-runs once per terminal open (throttled to 24h via ~/.claude/.aa-last-freshness-check). Detects framework behind origin/main, pulled-but-not-installed state, and new global skills since last install. Self-contained — also executable directly via `bash check.sh [--force]` from any global skill's Phase 0 to surface the nudge mid-session."
+    }
+  ],
+  "global_skills": [
+    {
+      "name": "aa-optimizer",
+      "source": "skills/aa-optimizer",
+      "target": "~/.claude/skills/aa-optimizer",
+      "description": "AI rules optimizer — audits a project's rule files for redundancy, alwaysApply overuse, and stale references."
+    },
+    {
+      "name": "aa-record-improvement",
+      "source": "skills/aa-record-improvement",
+      "target": "~/.claude/skills/aa-record-improvement",
+      "description": "Capture a framework improvement suggestion from inside a target project. Writes a structured file to the workspace's _AIAwarenessFramework/improvements/ for aa-add-improvement to consume."
+    },
+    {
+      "name": "aa-global-pr-reviewer",
+      "source": "skills/aa-global-pr-reviewer",
+      "target": "~/.claude/skills/aa-global-pr-reviewer",
+      "description": "Review any GitHub PR from anywhere. Clones the target repo into ~/aa-global-pr-reviewer/repos/, creates a review worktree via aa_g_worktree_review, detects the project's existing rules and reviewers (CLAUDE.md / AGENTS.md / docs/ai-rules/ / .coderabbit.yaml / .github/workflows/), runs the project's tests (best-effort), reviews changed code with focus on logical bugs and edge cases not caught by other tools, dedups against existing PR comments, and posts inline review comments with fix suggestions."
+    }
+  ]
+}

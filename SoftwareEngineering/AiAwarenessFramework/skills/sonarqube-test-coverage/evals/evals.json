@@ -1,0 +1,78 @@
+{
+  "skill_name": "sonarqube-test-coverage",
+  "_comment": "Evals for the manual, opt-in coverage skill. Each prompt invokes the skill against a Spring Boot / Gradle target. To run the full benchmark loop a real Java target with coverage gaps is required (e.g. a throwaway clone of a a backend service); the with-seam / no-seam fixtures here drive the command-resolution cases. Expectations are written to be objectively checkable from the run transcript + produced outputs.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use the sonarqube-test-coverage skill to raise coverage on the module-server module before I open my PR. The project's .claude/config_hints.json is the one provided.",
+      "expected_output": "The skill resolves the coverage command from config_hints.coverage.command and runs exactly that command; it does not invent a different gradle invocation or guess a report path.",
+      "files": ["evals/files/with-seam/config_hints.json"],
+      "expectations": [
+        "Reads config_hints.json and resolves the coverage command from the coverage.command seam",
+        "Runs the exact command from coverage.command (./gradlew testCodeCoverageReport --rerun-tasks --no-daemon) rather than a guessed or different invocation",
+        "Locates the report at the coverage.report_glob path rather than searching blindly",
+        "Does not derive a command from test_command when coverage.command is present"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run sonarqube-test-coverage on my staged changes so I know what Sonar would flag as uncovered new code.",
+      "expected_output": "Every coverage run (initial and the re-run in the verify phase) bypasses the build cache; the skill explicitly forces a fresh run rather than trusting a cached report.",
+      "files": ["evals/files/with-seam/config_hints.json"],
+      "expectations": [
+        "Resolves the scope from staged changes via git diff --cached --name-only and filters to production source files only",
+        "Every coverage invocation includes the cache-bypass flag (--rerun-tasks) or otherwise forces a fresh run",
+        "States or demonstrates that a cached coverage report would be stale and must not be trusted",
+        "Re-runs coverage with the cache bypassed in the verify phase, not just the first time"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have a bunch of changes on this branch. Use sonarqube-test-coverage to close the coverage gaps for the diff against origin/main...HEAD — I only care about the lines this PR actually adds or changes.",
+      "expected_output": "The skill intersects the report's uncovered/partial lines with the diff so only newly added or modified lines are in scope; pre-existing untested code is reported as out of scope, not targeted for new tests.",
+      "files": ["evals/files/with-seam/config_hints.json"],
+      "expectations": [
+        "Cross-references uncovered/partial lines with git diff --unified=0 origin/main...HEAD per file",
+        "Only newly added or modified lines are treated as in-scope coverage gaps",
+        "Pre-existing uncovered lines outside the diff are explicitly excluded, not written tests for",
+        "Classifies lines correctly (not-covered when mi>0 && ci==0; partial when mi>0 && ci>0; branch-gap when mb>0) using the report attributes"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Use sonarqube-test-coverage to get PricingService.java to full coverage. Heads up: it has a defensive `throw new IllegalStateException` branch that only fires on an input the public API can't actually produce.",
+      "expected_output": "The skill writes meaningful tests for reachable lines, caps iteration at 3 passes, and flags the unreachable defensive branch under 'Remaining gaps' with a reason rather than contorting a test to hit it.",
+      "files": ["evals/files/with-seam/config_hints.json"],
+      "expectations": [
+        "Stops iterating after at most 3 coverage passes",
+        "Flags the unreachable defensive branch under a Remaining gaps section with a stated reason",
+        "Does not use reflection, visibility hacks, or contrived inputs to force coverage of the unreachable line",
+        "Tests written for reachable lines assert behavior, not just execute lines for coverage"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Get my new mapper and service up to the coverage gate with sonarqube-test-coverage and commit it for me.",
+      "expected_output": "The skill writes the unit tests but does NOT commit or push (it defers committing to the caller / commit skill), and it does NOT add or modify integration tests.",
+      "files": ["evals/files/with-seam/config_hints.json"],
+      "expectations": [
+        "Writes unit tests in the test tree mirroring the production package",
+        "Does not run git commit or git push",
+        "States that committing is the caller's responsibility (e.g. via the commit skill with user approval)",
+        "Does not create or modify any test under an integration-tests module"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Run sonarqube-test-coverage on the module-server module. The provided .claude/config_hints.json is what this project has.",
+      "expected_output": "With no coverage seam present, the skill falls back in order — installed unit-testing rule, then derive from test_command — and explicitly states the assumption it made about the coverage command and report path instead of silently guessing.",
+      "files": ["evals/files/no-seam/config_hints.json"],
+      "expectations": [
+        "Detects that config_hints has no coverage.command seam",
+        "Falls back to the project's installed unit-testing rule for the coverage command/report path, or derives from test_command if the rule is absent",
+        "Explicitly states the assumption it made about the coverage command and report location",
+        "Still bypasses the build cache in whatever command it derives"
+      ]
+    }
+  ]
+}

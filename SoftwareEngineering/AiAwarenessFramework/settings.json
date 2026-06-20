@@ -1,0 +1,65 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(aa-task-flow)",
+      "Bash(./mvnw:*)",
+      "Bash(mvn:*)",
+      "Bash(./gradlew:*)",
+      "Bash(gradle:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(file:*)",
+      "Bash(pwd:*)",
+      "Bash(mkdir:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git stash list:*)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)",
+      "Bash(java:-version)",
+      "Bash(which:*)",
+      "Bash(echo:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker logs:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(rm -r:*)",
+      "Bash(git reset:*)",
+      "Bash(git clean:*)",
+      "Bash(git rebase:*)"
+    ],
+    "ask": [
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(git restore:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(java:-jar:*)",
+      "Bash(gh pr create:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command'); g='(^|[;&|]|\\$\\(|`)[[:space:]]*git[[:space:]]+(-[^[:space:]]+([[:space:]]+[^-[:space:]][^[:space:]]*)?[[:space:]]+)*'; seg=$(printf '%s\\n' \"$cmd\" | grep -oE \"${g}push[^;&|]*\"); if [ -n \"$seg\" ] && printf '%s\\n' \"$seg\" | grep -Eq -- '--force|(^|[[:space:]])-f([[:space:]]|$)'; then echo 'Refuse: force-push is forbidden - never rewrite pushed history' >&2; exit 2; fi; if printf '%s\\n' \"$cmd\" | grep -Eq \"${g}(commit|push)([^[:alnum:]_-]|$)\"; then tdir=$(printf '%s\\n' \"$cmd\" | sed -nE 's/.*(^|[;&|])[[:space:]]*(cd|git[[:space:]]+-C)[[:space:]]+([^[:space:];&|]+).*/\\3/p' | head -1); [ -z \"$tdir\" ] && tdir=\"$PWD\"; tgt=$(git -C \"$tdir\" rev-parse --show-toplevel 2>/dev/null); code=$(git -C \"${CLAUDE_PROJECT_DIR:-$PWD}\" rev-parse --show-toplevel 2>/dev/null); br=$(git -C \"$tdir\" branch --show-current 2>/dev/null); def=$(git -C \"$tdir\" symbolic-ref --short -q refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@'); if [ -n \"$tgt\" ] && [ \"$tgt\" = \"$code\" ] && { [ \"$br\" = main ] || [ \"$br\" = master ] || { [ -n \"$def\" ] && [ \"$br\" = \"$def\" ]; }; }; then echo 'Refuse: commit/push on the code repo default branch - use a feature branch' >&2; exit 2; fi; fi; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

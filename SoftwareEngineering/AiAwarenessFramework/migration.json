@@ -1,0 +1,107 @@
+{
+  "description": "Versioned rename map. aa-upgrade walks the `renames` array, applies any entry whose applies_to range covers the project's current framework_version. The legacy top-level fields (`skills`, `agents`, `global_skills`, `global_agents`) remain for backward compatibility with the v6.0.0 namespace migration.",
+  "introduced_in": "6.0.0",
+  "renames": [
+    {
+      "version": "6.0.0",
+      "applies_to": "< 6.0.0",
+      "description": "v6.0.0 namespace migration — every skill/agent/script gets the aa- prefix.",
+      "skills": {
+        "task-flow": "aa-task-flow",
+        "task-flow-remember": "aa-task-flow-remember",
+        "task-flow-resume": "aa-task-flow-resume",
+        "task-flow-fix-comments": "aa-task-flow-fix-comments",
+        "task-flow-inspector": "aa-task-flow-inspector",
+        "task-flow-review": "aa-task-flow-review",
+        "task-flow-record-improvement": null,
+        "github-commit": "aa-commit",
+        "github-pr": "aa-pr",
+        "review-pr": "aa-review-pr",
+        "ai-sanitizer": null,
+        "init-mcps": "aa-init-mcps",
+        "init-skills": "aa-init-skills",
+        "init-tools": null
+      },
+      "agents": {
+        "commit-writer": "aa-commit-writer",
+        "doc-writer": "aa-doc-writer",
+        "pr-writer": "aa-pr-writer",
+        "test-runner": "aa-test-runner",
+        "plan-verifier": "aa-plan-verifier",
+        "code-reviewer": "aa-code-reviewer"
+      },
+      "global_skills": {
+        "ai-sanitizer": "aa-optimizer",
+        "task-flow-record-improvement": "aa-record-improvement"
+      },
+      "global_agents": {
+        "commit-writer": "aa-commit-writer",
+        "doc-writer": "aa-doc-writer",
+        "pr-writer": "aa-pr-writer",
+        "test-runner": "aa-test-runner",
+        "plan-verifier": "aa-plan-verifier",
+        "code-reviewer": "aa-code-reviewer"
+      }
+    },
+    {
+      "version": "6.6.0",
+      "applies_to": "< 6.6.0",
+      "description": "v6.6.0: aa-task-flow-inspector renamed to aa-task-flow-progress-fixer. The new name reflects the skill's actual behaviour: reconcile workspace state against reality (PR merge state, branch existence, summary freshness), not just inspect.",
+      "skills": {
+        "aa-task-flow-inspector": "aa-task-flow-progress-fixer"
+      }
+    },
+    {
+      "version": "7.0.0",
+      "applies_to": "< 7.0.0",
+      "description": "v7.0.0: workspace skills moved from skills/ to workspace-skills/ in the framework source. The skills/manifest.json file and the run-from filter (v6.6.0-v6.10.0) are deleted; directory location now IS the role. From the target project's perspective the .claude/skills/ destination is unchanged, but the SOURCE directory aa-upgrade reads from differs by INSTALL_ROLE: code-repo installs read from skills/, workspace installs read from workspace-skills/. Also corrects aa-task-flow-remember mis-classification — it was workspace from v6.6.0 to v6.10.0 but is an in-session code-repo skill, so it stays in skills/ in v7.0.0. Code-repo installs that lost it under the v6.7.0 filter will receive it again on the next upgrade. File-level Add/Remove instructions for aa-upgrade live in the v7.0.0 CHANGELOG **Added:**/**Removed:** sections — no rename mapping needed here because the framework destination path under .claude/skills/ is unchanged for every skill."
+    }
+  ],
+  "skills": {
+    "task-flow": "aa-task-flow",
+    "task-flow-remember": "aa-task-flow-remember",
+    "task-flow-resume": "aa-task-flow-resume",
+    "task-flow-fix-comments": "aa-task-flow-fix-comments",
+    "task-flow-inspector": "aa-task-flow-inspector",
+    "task-flow-review": "aa-task-flow-review",
+    "task-flow-record-improvement": null,
+    "github-commit": "aa-commit",
+    "github-pr": "aa-pr",
+    "review-pr": "aa-review-pr",
+    "ai-sanitizer": null,
+    "init-mcps": "aa-init-mcps",
+    "init-skills": "aa-init-skills",
+    "init-tools": null
+  },
+  "agents": {
+    "commit-writer": "aa-commit-writer",
+    "doc-writer": "aa-doc-writer",
+    "pr-writer": "aa-pr-writer",
+    "test-runner": "aa-test-runner",
+    "plan-verifier": "aa-plan-verifier",
+    "code-reviewer": "aa-code-reviewer"
+  },
+  "global_skills": {
+    "ai-sanitizer": "aa-optimizer",
+    "task-flow-record-improvement": "aa-record-improvement"
+  },
+  "global_agents": {
+    "commit-writer": "aa-commit-writer",
+    "doc-writer": "aa-doc-writer",
+    "pr-writer": "aa-pr-writer",
+    "test-runner": "aa-test-runner",
+    "plan-verifier": "aa-plan-verifier",
+    "code-reviewer": "aa-code-reviewer"
+  },
+  "notes": {
+    "schema": "The `renames` array is the canonical structure for v6.0.0+ migrations. Each entry has version (when the rename was introduced), applies_to (semver range the entry covers), and rename maps. Top-level skills/agents/global_skills/global_agents fields are kept for backward compatibility with aa-upgrade code that pre-dates the array schema.",
+    "null_values": "null means the item was removed from that install target (either deleted or moved to global)",
+    "task-flow-record-improvement": "Moved from project-level to global install (aa-record-improvement)",
+    "ai-sanitizer": "Renamed to aa-optimizer and remains global-only",
+    "code-reviewer": "Renamed to aa-code-reviewer (agent kept, only the generic framework agent name was ambiguous)",
+    "init-tools": "Was never a project-level skill — framework-operational only",
+    "aa-task-flow-inspector": "Renamed to aa-task-flow-progress-fixer in v6.6.0; the new name reflects the skill's reconciliation behaviour against actual git/GitHub state.",
+    "v7.0.0-directory-split": "Workspace skills (aa-task-flow-progress-fixer, aa-weekly-report) moved from skills/ to workspace-skills/ in the framework source. From the target's POV, the install destination is unchanged (.claude/skills/). aa-task-flow-remember stays in skills/ (was incorrectly classified workspace v6.6.0-v6.10.0). The skills/manifest.json file is gone — directory location replaces it.",
+    "v7.0.0-remember-restore": "aa-task-flow-remember was filtered OUT of code-repo installs from v6.7.0 to v6.10.0 due to its workspace classification. v7.0.0 corrects the classification (it's a target-project skill — invoked in-session when Claude forgets mid-task), so the next aa-upgrade against any code-repo target will RE-INSTALL the skill (treated as a new file because the target's .claude/skills/aa-task-flow-remember/ was deleted by the previous upgrade)."
+  }
+}

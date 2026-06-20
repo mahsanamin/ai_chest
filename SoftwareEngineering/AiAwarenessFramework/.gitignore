@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Editors / IDEs
+.idea/
+.vscode/
+*.swp
+*~
+
+# Claude Code per-user settings (never commit; user-specific)
+.claude/settings.local.json
+**/settings.local.json
+
+# Secrets / keys (defense-in-depth — none expected in this repo)
+*.pem
+*.key
+.env
+.env.*
+
+# OS / tooling junk
+Thumbs.db

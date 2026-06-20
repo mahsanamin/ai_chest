@@ -1,0 +1,7 @@
+{
+  "_comment": "Fixture: a backend project with NO coverage seam. Only test_command is present. The skill must fall back (installed unit-testing rule, then derive from test_command) and STATE the assumption it makes about the coverage command/report path.",
+  "project": { "namespace": "EX", "name": "Example Service" },
+  "platform": "Backend",
+  "standards_location": "docs/ai-rules",
+  "test_command": "./gradlew test --rerun-tasks --no-daemon"
+}
