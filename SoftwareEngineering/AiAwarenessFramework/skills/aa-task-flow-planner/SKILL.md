@@ -20,7 +20,7 @@ Follow `{standards_location}/learning-routing.md`: route any learning to a proje
 
 Guides planning of large features that span multiple PRs. Produces:
 1. A **planning ticket** immediately (signals planning has started to team)
-2. A comprehensive spec document (local + mdnest)
+2. A comprehensive spec document (committed locally; mirrored to a shared docs store if one is configured)
 3. Sequential raw prompts (each one aa-task-flow ready, one PR each)
 4. An overview/index with dependency graph
 5. A plan manifest (machine-readable bridge to aa-task-flow)
@@ -41,7 +41,7 @@ project_name=$(jq -r '.project.name' .claude/config_hints.json)
 platform=$(jq -r '.platform' .claude/config_hints.json)
 tracker_type=$(jq -r '.project.tracker.type // "github"' .claude/config_hints.json)
 tracker_url=$(jq -r '.project.tracker.url // ""' .claude/config_hints.json)  # jira/linear only
-mdnest_docs_base=$(jq -r '.path_derivation_rules.mdnest_docs_base' .claude/config_hints.json)
+docs_store_base=$(jq -r '.path_derivation_rules.docs_store_base // ""' .claude/config_hints.json)  # optional shared docs store; empty → local-only
 
 # User paths
 tasks_root=$(jq -r '.paths.tasks_root' .claude/skill.config)
@@ -65,7 +65,9 @@ plans_folder="$docs_root/UnderProcessing"
 
 ## Docs Auto-Push
 
-The docs directory (`coding_tasks_root`) is a separate git repo. Push at checkpoints marked with the push icon.
+The docs directory (`coding_tasks_root`) is a separate git repo and is the **source of truth** for every planning artifact. Push at checkpoints marked with the push icon. If your project also configures a shared docs store (see below), mirroring to it is optional and never replaces the committed local copy.
+
+**Shared docs store (optional):** if `docs_store_base` is set in `config_hints.json`, the skill also publishes each artifact to that store (a wiki, an object store, a notes service, or any other shared location your project uses). When `docs_store_base` is empty, the skill runs in local-only mode and the committed docs repo is the only copy. The store is a convenience mirror, so a failure to publish there is never fatal: the local files always win.
 
 **Push-Docs Procedure** (same as aa-task-flow):
 
@@ -204,15 +206,15 @@ mkdir -p "$plan_dir/raw_prompts"
 
 ### Step 0h: Check for Existing Plan
 
-Check if `{plans_folder}/{PascalSlug}/plan_manifest.json` exists locally or on mdnest. Check the local filesystem FIRST so resume works offline/deterministically, then fall back to mdnest:
+Check if `{plans_folder}/{PascalSlug}/plan_manifest.json` exists locally first, so resume works offline and deterministically. Only if the local copy is missing, fall back to a configured shared docs store:
 
 ```bash
 # Local check first (offline/deterministic resume)
 if [ -f "{plans_folder}/{PascalSlug}/plan_manifest.json" ]; then
   : # existing plan found locally → Resume/Update (Phase 6)
-else
-  # Fall back to mdnest
-  mdnest read "{mdnest_docs_base}/UnderProcessing/{PascalSlug}/plan_manifest.json" 2>/dev/null
+elif [ -n "$docs_store_base" ]; then
+  : # no local copy → fetch plan_manifest.json from the shared docs store at
+    # "{docs_store_base}/UnderProcessing/{PascalSlug}/plan_manifest.json" (skip if no store)
 fi
 ```
 
@@ -227,11 +229,8 @@ fi
 ### Step 1a: Understand Current State
 
 1. Read relevant codebase areas to understand the current implementation
-2. Read any existing docs the user points to (mdnest paths, Confluence, local files)
-3. If user referenced an mdnest document:
-   ```bash
-   mdnest read "{path}"
-   ```
+2. Read any existing docs the user points to (local files, a wiki page, a shared docs store, etc.)
+3. If the user references a document in a shared docs store, fetch it from that store using whatever access method the store provides
 
 ### Step 1b: Guided Discussion
 
@@ -291,15 +290,11 @@ Write in product-focused language. Prefer mermaid for diagrams.
 
 ### Step 2b: Publish Spec
 
-Write to both locations:
+Write the canonical copies locally (these get committed when you push docs):
 
 1. **Local:** `$planning_root/{project_namespace}-Plan-{PascalSlug}/spec.md`
 2. **Docs folder:** `$plans_folder/{PascalSlug}/spec.md`
-3. **mdnest:**
-   ```bash
-   cat "{local_path}" | mdnest create "{mdnest_docs_base}/UnderProcessing/{PascalSlug}/spec.md" -
-   ```
-   If the file already exists on mdnest (e.g., resuming), use `mdnest write` instead of `mdnest create`.
+3. **Shared docs store (optional):** if `docs_store_base` is set, also publish the same content to `{docs_store_base}/UnderProcessing/{PascalSlug}/spec.md` using the store's write method (creating or overwriting the page as needed). If no store is configured, skip this — the committed local files are the source of truth.
 
 ### Step 2c: Update Planning Ticket
 
@@ -309,7 +304,7 @@ Add the spec as a comment on the planning ticket:
 # mcp__claude_ai_Atlassian_2__addCommentToJiraIssue(
 #   cloudId="{tracker_url}",
 #   issueIdOrKey="{PLAN_TICKET}",
-#   body="Spec document created.\n\nLocal: {local_path}\nmdnest: {mdnest_path}\n\nProceeding to break into implementation tasks."
+#   body="Spec document created.\n\nLocal: {local_path}\nShared docs store: {store_path or 'n/a'}\n\nProceeding to break into implementation tasks."
 # )
 ```
 
@@ -318,7 +313,7 @@ Add the spec as a comment on the planning ticket:
 ```
 Spec document created:
 - Local: {local_path}
-- mdnest: {mdnest_path}
+- Shared docs store: {store_path or "local-only"}
 - Planning ticket: {PLAN_TICKET} (comment added)
 
 Please review the spec. Approve to proceed to prompt breakdown, or tell me what to adjust.
@@ -383,23 +378,20 @@ For each prompt (01 through NN):
 1. Write content following the Raw Prompt Convention (see below)
 2. Save locally: `$planning_root/{project_namespace}-Plan-{PascalSlug}/raw_prompts/{NN}_{slug}.md`
 3. Also save to docs: `$plans_folder/{PascalSlug}/raw_prompts/{NN}_{slug}.md`
-4. Publish to mdnest:
-   ```bash
-   cat "{local_path}" | mdnest create "{mdnest_docs_base}/UnderProcessing/{PascalSlug}/raw_prompts/{NN}_{slug}.md" -
-   ```
+4. If `docs_store_base` is set, also publish the same content to `{docs_store_base}/UnderProcessing/{PascalSlug}/raw_prompts/{NN}_{slug}.md` in the shared docs store. Skip when no store is configured.
 
 ### Step 4b: Write Overview
 
 Write `00_overview.md` with:
 - Plan title and description
 - Planning ticket reference: `{PLAN_TICKET}`
-- Link to full spec on mdnest
+- Link to the full spec (relative doc path, or `{docs_store_base}/...` when a store is configured)
 - Task sequence table (same as Step 3b)
 - Dependency graph (ASCII or mermaid)
 - Parallelism notes (which tasks can run concurrently)
 - Migration notes (if applicable)
 
-Save locally, to docs folder, and publish to mdnest.
+Save locally, to the docs folder, and publish to the shared docs store if one is configured.
 
 ### Step 4c: Write Plan Manifest
 
@@ -416,7 +408,7 @@ Write `plan_manifest.json`:
   "status": "planned",
   "story_branch": null,
   "spec_path": "spec.md",
-  "mdnest_base": "{mdnest_docs_base}/UnderProcessing/{PascalSlug}",
+  "docs_store_base": "{docs_store_base}/UnderProcessing/{PascalSlug}",
   "prompt_count": {N},
   "prompts": [
     {
@@ -433,14 +425,13 @@ Write `plan_manifest.json`:
 }
 ```
 
-Save locally and publish to mdnest.
+(`docs_store_base` is only meaningful when a shared store is configured; in local-only mode set it to `null` or omit it.)
+
+Save locally and, if a store is configured, publish to the shared docs store.
 
 ### Step 4d: Verify
 
-Read back each file from mdnest to verify:
-```bash
-mdnest read "{path}" | head -5
-```
+Confirm each file was written correctly by reading back the first few lines from its canonical local copy (and from the shared docs store as well, if one is configured).
 
 **Push docs.**
 
@@ -478,7 +469,7 @@ Story ticket via the Atlassian MCP:
 #   projectKey="{project_namespace}",
 #   issueType="Story",
 #   summary="{Plan Title}",
-#   description="## Overview\n{spec overview}\n\n## Implementation Tasks\n{numbered list of raw prompts with titles}\n\n## Spec\nFull spec: {mdnest_path}\n\n## Raw Prompts\n{list of mdnest links to each prompt}\n\nCreated by aa-task-flow-planner from planning ticket {PLAN_TICKET}.",
+#   description="## Overview\n{spec overview}\n\n## Implementation Tasks\n{numbered list of raw prompts with titles}\n\n## Spec\nFull spec: {spec doc path}\n\n## Raw Prompts\n{list of doc paths to each prompt}\n\nCreated by aa-task-flow-planner from planning ticket {PLAN_TICKET}.",
 #   parentKey="{epic_key}"  # same epic as planning ticket
 # )
 ```
@@ -548,7 +539,7 @@ Update `plan_manifest.json` with story details:
 }
 ```
 
-Publish updated manifest to local, docs, and mdnest.
+Publish the updated manifest to the local plan folder and docs folder, and to the shared docs store if one is configured.
 
 ### Step 5g: Calculate Week Ending
 
@@ -596,10 +587,10 @@ Plan complete!
 
 Planning ticket: {PLAN_TICKET} (closed)
 Story ticket: {STORY_TICKET} - {Plan Title}
-Spec: mdnest://{spec_path}
-Overview: mdnest://{overview_path}
-Raw prompts: {N} files (mdnest://{prompts_path}/01..{NN})
-Manifest: mdnest://{manifest_path}
+Spec: {spec_path}
+Overview: {overview_path}
+Raw prompts: {N} files ({prompts_path}/01..{NN})
+Manifest: {manifest_path}
 Story branch: story/{STORY_TICKET}-{branch-slug}
 TasksSummary: PLAN {title} logged
 
@@ -623,9 +614,7 @@ To start executing:
 
 ### Step 6a: Read Current State
 
-```bash
-mdnest read "{mdnest_docs_base}/UnderProcessing/{PascalSlug}/plan_manifest.json"
-```
+Read `plan_manifest.json` from its canonical local copy at `{plans_folder}/{PascalSlug}/plan_manifest.json`. If the local copy is missing and a shared docs store is configured, fetch it from `{docs_store_base}/UnderProcessing/{PascalSlug}/plan_manifest.json` instead.
 
 Parse the manifest. Count prompts by status.
 
@@ -719,8 +708,8 @@ Every raw prompt generated by this skill MUST follow these rules:
    - Prefer numbered steps and short bullets over paragraph walls.
    - A "Human version" must read like explaining to a colleague over coffee — no unexplained jargon.
    - Read it back: if a sentence needs two passes to parse, rewrite it.
-   - Good: "Make one shared verification function with an explicit flag: run upstream checks, or skip them. Keep: document fees, eligibility, document validation. Remove: item price-check, product revalidation."
-   - Bad: "Refactor so one shared verification function takes an explicit flag controlling whether upstream validation and checkout creation run — it keeps fees, eligibility and validation but makes no item call, no revalidation, and no passenger-info call."
+   - Good: "Make one shared checkout function with an explicit flag: run the optional upstream checks, or skip them. Keep: price calculation, discount eligibility, cart validation. Remove: the inventory re-check, the tax recalculation, and the shipping-estimate call."
+   - Bad: "Refactor so one shared checkout function takes an explicit flag controlling whether the optional upstream checks run, keeping price calculation, discount eligibility and cart validation but making no inventory re-check, no tax recalculation, and no shipping-estimate call."
 
 ### Footer Convention
 
@@ -731,7 +720,7 @@ Every raw prompt ends with a reference to the full spec so aa-task-flow can read
 See full architecture plan: {path_to_spec}
 ```
 
-The path can be a local path or an mdnest path, depending on where the spec was published. The user will provide this to aa-task-flow when starting a child task.
+The path can be a local doc path or, if a shared docs store is configured, a `{docs_store_base}/...` path, depending on where the spec was published. The user will provide this to aa-task-flow when starting a child task.
 
 ### Story Branch in prompt-understanding.md
 
@@ -799,19 +788,20 @@ Planning can continue without Jira (tickets will be created manually).
 
 If MCP is not available, skip Jira steps (0e, 0f, 2c, 5b, 5c, 5d) and tell the user to create tickets manually. The rest of the workflow works without Jira.
 
-**mdnest not available:**
+**Shared docs store unavailable:**
 ```
-mdnest CLI not found. Install mdnest or check your PATH.
-Falling back to local-only mode (no mdnest publishing).
+Shared docs store could not be reached (or none is configured).
+Falling back to local-only mode — the committed docs repo is the source of truth.
 ```
+The local files are canonical, so this never blocks planning. Note it to the user and continue.
 
 **Story branch already exists:**
 ```
 Branch story/{slug} already exists. Using existing branch.
 ```
 
-**mdnest create fails (file exists):**
-Use `mdnest write` instead (overwrite existing file).
+**Shared docs store publish fails (page already exists):**
+Overwrite the existing page in the store rather than creating a new one. If the store cannot be written to at all, drop to local-only mode (above) — the committed local copy is authoritative.
 
 **Jira ticket creation fails:**
 ```

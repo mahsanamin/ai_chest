@@ -259,4 +259,4 @@ Improvements are made through the `aa-add-improvement` command from inside this 
 
 [MIT](./LICENSE) © Ahsan Amin.
 
-**Maintained by [Ahsan Amin](https://github.com/your-org).**
+**Maintained by [Ahsan Amin](https://github.com/mahsanamin).**
